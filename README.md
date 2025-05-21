@@ -6,7 +6,7 @@ Great — since you're going full-featured with allocator layers, debug tooling,
 
 ---
 
-## 📁 **Directory Layout**
+## **Directory Layout**
 
 ```
 BumpAllocator/
@@ -40,7 +40,7 @@ BumpAllocator/
 
 ---
 
-### 🔧 Optional Extras Later
+### Optional Extras Later
 
 * `examples/` → Multiple CLI or game-style demos
 * `docs/` → Diagrams or memory layout explanations
