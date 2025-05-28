@@ -1,8 +1,10 @@
 #include "../include/BumpAllocator.hpp"
 #include "../include/Logger.hpp"
-#include "../include/MemoryPool.hpp"  //
+#include "../include/MemoryPool.hpp"
+#include "../include/ThreadSafeAllocator.hpp"
 #include <iostream>
 #include <string>
+#include <thread>
 
 struct Foo {
     int x;
@@ -39,11 +41,21 @@ struct TrackedObject {
 
 BumpAllocator* TrackedObject::allocator = nullptr;
 
+void thread_test(ThreadSafeAllocator<BumpAllocator>& tsAlloc) {
+    for (int i = 0; i < 5; ++i) {
+        int* val = tsAlloc.allocate<int>("thread_int");
+        *val = i;
+        Logger::log("[Thread] Wrote: " + std::to_string(*val));
+    }
+}
+
 int main(int argc, char* argv[]) {
-    constexpr std::size_t SIZE = 1024;
+    constexpr std::size_t SIZE = 2048;
     alignas(std::max_align_t) char buffer[SIZE];
     BumpAllocator allocator(buffer, SIZE);
     TrackedObject::allocator = &allocator;
+
+    ThreadSafeAllocator<BumpAllocator> tsAlloc(allocator);
 
     // CLI flag processing
     for (int i = 1; i < argc; ++i) {
@@ -55,7 +67,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // allocate<T>
+    // Basic allocation
     int* a = allocator.allocate<int>();
     *a = 42;
     Logger::log("Allocated int: " + std::to_string(*a));
@@ -68,14 +80,19 @@ int main(int argc, char* argv[]) {
     TrackedObject* obj = new TrackedObject(123);
     Logger::log("TrackedObject value: " + std::to_string(obj->value));
 
-    // MemoryPool usage
+    // MemoryPool
     MemoryPool<Foo> fooPool(allocator, 5);
     Foo* pooled1 = fooPool.make(111);
     Foo* pooled2 = fooPool.make(222);
-
     Logger::log("MemoryPool created " + std::to_string(fooPool.size()) + " objects");
 
-    // Post-allocation CLI commands
+    // ThreadSafeAllocator test
+    std::thread t1(thread_test, std::ref(tsAlloc));
+    std::thread t2(thread_test, std::ref(tsAlloc));
+    t1.join();
+    t2.join();
+
+    // CLI flags after allocation
     for (int i = 1; i < argc; ++i) {
         std::string flag = argv[i];
         if (flag == "--status") {

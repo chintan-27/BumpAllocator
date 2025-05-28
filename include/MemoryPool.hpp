@@ -25,6 +25,10 @@ public:
         Logger::log("[MemoryPool] Allocated object of type '" + std::string(typeid(T).name()) + "'");
         return obj;
     }
+    void reset() {
+        count = 0;
+        Logger::log("[MemoryPool] Resetting pool of type '" + std::string(typeid(T).name()) + "'");
+    }
 
     std::size_t size() const { return count; }
     std::size_t max_size() const { return capacity; }
