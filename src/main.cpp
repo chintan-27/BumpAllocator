@@ -11,30 +11,41 @@ struct Foo {
     }
 };
 
-int main() {
+int main(int argc, char** argv) {
     constexpr std::size_t SIZE = 1024;
     alignas(std::max_align_t) char buffer[SIZE];
-
     BumpAllocator allocator(buffer, SIZE);
 
-    // Test allocate<int>()
-    int* a = allocator.allocate<int>();
+    // Parse flags first
+    bool enableLog = false;
+    bool showStatus = false;
+    bool showDump = false;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string flag = argv[i];
+        if (flag == "--log") Logger::enabled = true;
+        else if (flag == "--nolog") Logger::enabled = false;
+        else if (flag == "--status") showStatus = true;
+        else if (flag == "--dump") showDump = true;
+    }
+
+    // Actual usage
+    int* a = allocator.allocate<int>("int a");
     *a = 42;
-    std::cout << "*a = " << *a << "\n";
 
-    // Test make<Foo>()
     Foo* f = allocator.make<Foo>(99);
-    std::cout << "Foo value: " << f->x << "\n";
 
-    std::cout << "Used: " << allocator.getUsedBytes()
-              << ", Remaining: " << allocator.getRemainingBytes() << "\n";
+    if (showStatus) {
+        std::cout << "[Allocator Status] Used: " << allocator.getUsedBytes()
+                  << ", Remaining: " << allocator.getRemainingBytes() << "\n";
+    }
 
-    // Reset the allocator
+    if (showDump) {
+        allocator.dumpMemory();
+    }
+
+    std::cout << "Done\n";
     allocator.reset();
-    std::cout << "Allocator reset.\n";
-
-    std::cout << "Used: " << allocator.getUsedBytes()
-              << ", Remaining: " << allocator.getRemainingBytes() << "\n";
-
     return 0;
 }
+
