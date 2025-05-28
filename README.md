@@ -1,8 +1,17 @@
 # BumpAllocator
 
-A modern, high-performance bump allocator written in C++17/20. Designed for precise control over memory layout, object lifetimes, alignment, and allocation patterns. Includes typed allocation, destructor tracking, multi-buffer fallback, thread safety, and custom operator new integration — with debug logging, CLI demos, and optional GUI visualization.
+A modern, high-performance bump allocator written in C++17/20. Designed for precise control over memory layout, object lifetimes, alignment, and allocation patterns.
 
-Great — since you're going full-featured with allocator layers, debug tooling, and clean separation, here's a solid and scalable **project structure** for your bump allocator:
+## Features
+- Typed and aligned allocation
+- Destructor tracking
+- Multi-buffer fallback
+- Thread-safe wrappers
+- Custom operator new/delete
+- Debug logging and optional UI
+
+## Project Structure
+(See directory layout in project plan)
 
 ---
 
